@@ -29,11 +29,10 @@ SmartyPantsBot is an AI-powered chatbot built using the Flask framework, designe
    flask run
    ```
 
-5. Expose the local server to the internet using ngrok:
-   ```bash
-   ngrok http 5000
-   ```
    Copy the public URL provided by ngrok and use it to access the chatbot interface.
+
+# About Ngrock
+[Ngrok](https://ngrok.com/) is a tool that allows you to create secure tunnels to your localhost, making it accessible over the internet. After running the above command, copy the public URL provided by ngrok and use it to access the chatbot interface. This is especially useful for testing the chatbot remotely or sharing it with others without deploying it to a live server.
 
 ## Example Images
 
