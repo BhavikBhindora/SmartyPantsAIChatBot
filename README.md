@@ -36,7 +36,7 @@ SmartyPantsBot is an AI-powered chatbot built using the Flask framework, designe
 
 ## Example Images
 
-[!image](https://github.com/BhavikBhindora/SmartyPantsAIChatBot/blob/main/chat.png)
+[!image](https://github.com/BhavikBhindora/SmartyPantsAIChatBot/chat.png)
 
 ## Contributing
 
