@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smarty Pants Bot</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; display: flex; height: 100vh; }
+        .container { display: flex; width: 100%; height: 100%; }
+        .chat-container { flex: 3; display: flex; flex-direction: column; padding: 20px; background-color: #ffffff; box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); }
+        .chat-title { font-size: 24px; color: #007bff; text-align: center; padding: 15px; margin-bottom: 10px; }
+        .chat-box { flex-grow: 1; overflow-y: auto; padding: 10px; margin-bottom: 15px; }
+        .message { display: flex; margin-bottom: 10px; }
+        .message.user { justify-content: flex-end; }
+        .message.ai { justify-content: flex-start; }
+        .message.loading { justify-content: flex-start; font-style: italic; color: #888; }
+        .bubble { max-width: 70%; padding: 10px; border-radius: 10px; font-size: 14px; }
+        .bubble.user { background-color: #e1ffc7; align-self: flex-end; }
+        .bubble.ai { background-color: #e9e9e9; }
+        .input-area { display: flex; }
+        .input-area input[type="text"] { flex-grow: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        .input-area button { padding: 10px 20px; border: none; border-radius: 5px; background-color: #007bff; color: #fff; cursor: pointer; transition: background-color 0.3s; }
+        .input-area button:hover { background-color: #0056b3; }
+        .sidebar { flex: 1; padding: 20px; background-color: #f7f9fc; box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1); }
+        .sidebar h2 { font-size: 18px; color: #333; margin-bottom: 15px; }
+        .sidebar .form-group { margin-bottom: 15px; }
+        .sidebar label { font-size: 14px; color: #555; display: block; margin-bottom: 5px; }
+        .sidebar input[type="number"], .sidebar input[type="file"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+        .action-buttons { display: flex; justify-content: space-between; margin-top: 10px; }
+        .action-buttons button { padding: 8px 12px; font-size: 14px; cursor: pointer; border-radius: 5px; border: none; transition: background-color 0.3s; }
+        .delete-btn { background-color: #ff4d4d; color: white; }
+        .delete-btn:hover { background-color: #e60000; }
+        .regenerate-btn { background-color: #ffcc00; color: white; }
+        .regenerate-btn:hover { background-color: #cc9900; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>AI Chat Settings</h2>
+            <form id="chatForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="temperature">Temperature (0.0 to 1.0):</label>
+                    <input type="number" step="0.1" id="temperature" name="temperature" value="0.8">
+                </div>
+                <div class="form-group">
+                    <label for="max_length">Max Length:</label>
+                    <input type="number" id="max_length" name="max_length" value="4096">
+                </div>
+                <div class="form-group">
+                    <label for="top_p">Top P:</label>
+                    <input type="number" step="0.1" id="top_p" name="top_p" value="0.9">
+                </div>
+                <div class="form-group">
+                    <label for="top_k">Top K:</label>
+                    <input type="number" id="top_k" name="top_k" value="50">
+                </div>
+                <div class="form-group">
+                    <label for="penalty">Penalty:</label>
+                    <input type="number" step="0.1" id="penalty" name="penalty" value="1.0">
+                </div>
+                <div class="form-group">
+                    <label for="file">Upload File (optional):</label>
+                    <input type="file" id="file" name="file">
+                </div>
+            </form>
+            <div class="action-buttons">
+                <button class="delete-btn" id="deleteChat">Delete Chat</button>
+                <button class="regenerate-btn" id="regenerateResponse">Regenerate</button>
+            </div>
+        </div>
+        <div class="chat-container">
+            <h1 class="chat-title">Smarty Pants Bot</h1>
+            <div class="chat-box" id="chatBox"></div>
+            <div class="input-area">
+                <input type="text" id="message" name="message" placeholder="Type a message...">
+                <button type="submit" form="chatForm">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let lastUserMessage = '';  // Variable to store the last user message
+
+        document.getElementById('chatForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const message = document.getElementById('message').value.trim();
+
+            if (!message) return; // Ignore if no message entered
+
+            // Store the message in lastUserMessage
+            lastUserMessage = message;
+
+            // Display user's message
+            const chatBox = document.getElementById('chatBox');
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('message', 'user');
+            userMessage.innerHTML = `<div class="bubble user">${message}</div>`;
+            chatBox.appendChild(userMessage);
+
+            formData.append("message", message);
+
+            // Add loading animation
+            const loadingMessage = document.createElement('div');
+            loadingMessage.classList.add('message', 'loading');
+            loadingMessage.innerHTML = `<div class="bubble ai">Bot is typing...</div>`;
+            chatBox.appendChild(loadingMessage);
+
+            // Send message to server
+            const response = await fetch('/chat/', {
+                method: 'POST',
+                body: formData
+            });
+
+            // Remove loading animation and display AI response
+            chatBox.removeChild(loadingMessage);
+            const data = await response.json();
+            const aiMessage = document.createElement('div');
+            aiMessage.classList.add('message', 'ai');
+            aiMessage.innerHTML = `<div class="bubble ai">${data.response}</div>`;
+            chatBox.appendChild(aiMessage);
+
+            document.getElementById('message').value = ''; // Clear input
+            chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to latest message
+        });
+
+        document.getElementById('deleteChat').addEventListener('click', function() {
+            document.getElementById('chatBox').innerHTML = ''; // Clear chat
+            lastUserMessage = '';  // Reset last user message
+        });
+
+        document.getElementById('regenerateResponse').addEventListener('click', async function() {
+            if (!lastUserMessage) return; // Ignore if there's no last user message
+
+            const formData = new FormData(document.getElementById('chatForm'));
+            formData.append("message", lastUserMessage);
+
+            // Add loading animation
+            const chatBox = document.getElementById('chatBox');
+            const loadingMessage = document.createElement('div');
+            loadingMessage.classList.add('message', 'loading');
+            loadingMessage.innerHTML = `<div class="bubble ai">Regenerating response...</div>`;
+            chatBox.appendChild(loadingMessage);
+
+            // Send request to regenerate response
+            const response = await fetch('/chat/', {
+                method: 'POST',
+                body: formData
+            });
+
+            // Remove loading animation and update AI response
+            chatBox.removeChild(loadingMessage);
+            const data = await response.json();
+            const aiMessage = document.createElement('div');
+            aiMessage.classList.add('message', 'ai');
+            aiMessage.innerHTML = `<div class="bubble ai">${data.response}</div>`;
+            chatBox.appendChild(aiMessage);
+
+            chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to latest message
+        });
+    </script>
+</body>
+</html>
