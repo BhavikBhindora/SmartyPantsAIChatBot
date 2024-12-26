@@ -1,13 +1,13 @@
-# SmartyPantsAIChatBot
+# SmartyPantsAIChatBot :robot:
 SmartyPantsBot is an AI-powered chatbot built using the Flask framework, designed for seamless conversational experiences. It leverages advanced Generative Language Models (GLM) to provide context-aware and intelligent responses. GLM models are state-of-the-art in natural language understanding, enabling robust, high-quality conversations in diverse applications.
 
-## Features
+## Features :rocket:
 
-- Interactive chatbot interface.
-- Support for integrating various GLM models.
-- Customizable and extensible for different use cases.
+- :speech_balloon: Interactive chatbot interface.
+- :gear: Support for integrating various GLM models.
+- :bulb: Customizable and extensible for different use cases.
 
-## Setup
+## Setup :wrench:
 
 1. Clone this repository:
    ```bash
@@ -31,10 +31,10 @@ SmartyPantsBot is an AI-powered chatbot built using the Flask framework, designe
 
    Copy the public URL provided by ngrok and use it to access the chatbot interface.
 
-### About Ngrock
+### About Ngrock :star:
 [Ngrok](https://ngrok.com/) is a tool that allows you to create secure tunnels to your localhost, making it accessible over the internet. After running the above command, copy the public URL provided by ngrok and use it to access the chatbot interface. This is especially useful for testing the chatbot remotely or sharing it with others without deploying it to a live server.
 
-## Example Images
+## Example Images :camera:
 
 ![image](https://github.com/BhavikBhindora/SmartyPantsAIChatBot/blob/main/chat.png)
 
