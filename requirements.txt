@@ -1,0 +1,6 @@
+PyMuPDF python-docx python-pptx tiktoken
+gradio spaces
+bitsandbytes==0.43.2
+git+https://github.com/huggingface/accelerate.git
+transformers==4.40.2
+pyngrok
